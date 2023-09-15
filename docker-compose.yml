@@ -1,0 +1,40 @@
+version: '3.5'
+
+services:
+  mongodb:
+    image: mongo:latest
+    environment:
+      - "TZ=Europe/London"
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data_container:/data/db
+
+  api:
+    container_name: api
+    build:
+      context: './api'
+      dockerfile: 'Dockerfile'
+    volumes:
+      - ./api/src:/usr/src/app/src/
+    depends_on:
+      - mongodb
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  front:
+    container_name: front
+    build:
+      context: './front'
+      dockerfile: 'Dockerfile'
+    volumes:
+      - ./front/src:/usr/src/app/src/
+    depends_on:
+      - mongodb
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+volumes:
+  mongodb_data_container:
